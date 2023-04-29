@@ -22,6 +22,7 @@ test_sources = [
 ]
 
 requires = [
+    "pandas",
 ]
 test_requires = [
     "pytest",
@@ -142,6 +143,7 @@ requires = [
 
 [tool.briefcase.app.trudge.android]
 requires = [
+    "pandas",
     "toga-android~=0.3.1"
 ]
 

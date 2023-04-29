@@ -5,7 +5,7 @@ import toga
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW
 
-import pandas as pd
+import trudge.csv_util as csv
 
 
 COLUMN_LABELS = {
@@ -25,7 +25,7 @@ COLUMN_LABELS = {
 class Trudge(toga.App):
 
     # TODO: have file path as an input
-    CSV_PATH = "/Users/roco/src/trudge_ws/data.csv"
+    CSV_PATH = "/Users/roco/src/trudge_ws/trudge/tests/data/data.csv"
 
     def startup(self):
         """
@@ -35,10 +35,9 @@ class Trudge(toga.App):
         We then create a main window (with a name matching the app), and
         show the main window.
         """
-        df = pd.read_csv(self.CSV_PATH)
         self.table = toga.Table(
-            headings=[COLUMN_LABELS[c] for c in df.columns], 
-            data=df.to_numpy().tolist()
+            headings=[COLUMN_LABELS[c] for c in csv.COLUMNS], 
+            data=csv.parse_file(self.CSV_PATH)
         )
 
         self.box = toga.Box(style=Pack(direction=COLUMN))
