@@ -1,0 +1,69 @@
+import datetime
+import pandas as pd
+
+# Time,Name,Reps,Weight (lb),Preceding Rest (min),Tempo Positive (s),Tempo Hold (s),Tempo Negative (s),Effort (/5),With Trainer (Y/N),Unilateral (Y/N),Notes
+
+COLUMNS = [
+    "time",
+    "name",
+    "reps",
+    "weight",
+    "rest",
+    "positive",
+    "hold",
+    "negative",
+    "effort",
+    "trainer",
+    "unilateral",
+    "notes",
+]
+# DESCRIPTIONS = {
+#     "time": "Date",
+#     "name": "Type",
+#     "reps": "Reps",
+#     "weight": "Weight (lb)",
+#     "rest": "Preceding Rest (min)",
+#     "positive": "Positive Tempo (s)",
+#     "hold": "Hold Time (s)",
+#     "negative": "Negative Tempo (s)",
+#     "effort": "Effort (1-5)",
+#     "trainer": "With Trainer (Y/N)",
+#     "unilateral": "Unilateral (Y/N)",
+#     "notes": "Notes",
+# }
+
+
+def convert_effort(entry: str):
+    val = int(entry)
+    if val < 1 or 5 < val:
+        raise Exception("effort {} must be on a 5 star scale".format(entry))
+    return val
+
+
+def clean_whitespace(s: str):
+    return s.lstrip(" ").rstrip(" ")
+
+
+CONVERTERS = {
+    "time": lambda s: datetime.datetime.fromisoformat(s.replace(" ", "")),
+    "name": clean_whitespace,
+    "reps": int,
+    "weight": float,
+    "rest": float,
+    "positive": int,
+    "hold": int,
+    "negative": int,
+    "effort": convert_effort,
+    "trainer": lambda s: {"Y": True, "N": False}[clean_whitespace(s)],
+    "unilateral": lambda s: {"Y": True, "N": False}[clean_whitespace(s)],
+    "notes": clean_whitespace,
+}
+
+
+def load_csv(path: str) -> pd.DataFrame:
+    return pd.read_csv(
+        path,
+        names=COLUMNS,
+        header=0, # to override header row
+        converters=CONVERTERS
+    )
