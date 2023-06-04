@@ -2,6 +2,7 @@ import enum
 import math
 import pandas as pd
 import numpy as np
+from typing import Any
 
 
 class OrmFormula(enum.Enum):
@@ -14,7 +15,7 @@ class OrmFormula(enum.Enum):
     Wathan  = enum.auto()
 
 
-def orm(reps, weight, formula: OrmFormula = OrmFormula.Brzycki):
+def orm(reps: Any, weight: Any, formula: OrmFormula = OrmFormula.Brzycki) -> Any:
     """https://www.athlegan.com/calculate-1rm
     
     Parameters
@@ -46,4 +47,34 @@ def orm(reps, weight, formula: OrmFormula = OrmFormula.Brzycki):
 
 
 def orm_series(df: pd.DataFrame) -> pd.Series:
+    """
+    Compute equivalent 1 rep max for every set in the record.
+
+    Parameters
+    ==========
+    df : pd.DataFrame
+        Presumed to be the raw parsed CSV with no extra information
+
+    Returns
+    =======
+    pd.Series
+        1 rep max for each set. Index into `df` is same as index into the return.
+    """
     return pd.Series(orm(reps=df["reps"], weight=df["weight"]), name="orm")
+
+def orm_per_lift(df: pd.DataFrame) -> pd.Series:
+    max_orm_per_set = pd.DataFrame(columns=("name", "time", "orm"))
+    # equivalent ORM for each set
+    set_orms = orm_series(df)
+    # unique lift names
+    max_orm_per_set["name"] = df["name"].unique()
+    for out_idx, name in enumerate(max_orm_per_set["name"]):
+        # find all set ORMs for this lift name
+        mask = df["name"] == name
+        these_orms = set_orms[mask]
+        # where the max ORM
+        in_idx = these_orms.idxmax()
+        max_orm_per_set.at[out_idx, "time"] = df["time"][in_idx]
+        max_orm_per_set.at[out_idx, "orm"] = set_orms[in_idx]
+    return max_orm_per_set
+    

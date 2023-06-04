@@ -1,8 +1,7 @@
 import datetime
 import pandas as pd
 
-# Time,Name,Reps,Weight (lb),Preceding Rest (min),Tempo Positive (s),Tempo Hold (s),Tempo Negative (s),Effort (/5),With Trainer (Y/N),Unilateral (Y/N),Notes
-
+# Column ordering. These are the internal names that are used as column keys
 COLUMNS = [
     "time",
     "name",
