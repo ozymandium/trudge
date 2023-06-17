@@ -13,11 +13,11 @@ def orm_handler(args: argparse.Namespace) -> None:
     res = orm_per_lift(df)
     print(res.sort_values(args.sort, ascending=args.asc))
 
-    orm_parser.add_argument("csv_path", help="Path to CSV tracking file")
 
 def show_handler(args: argparse.Namespace) -> None:
     df = load_csv(args.csv_path)
     print(df[df["name"] == args.name])
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
