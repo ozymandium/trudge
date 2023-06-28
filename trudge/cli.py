@@ -6,17 +6,21 @@ import argparse
 
 import ipdb
 import pandas as pd
+import tabulate
 
 
 def orm_handler(args: argparse.Namespace) -> None:
     df = load_csv(args.csv_path)
-    res = orm_per_lift(df)
-    print(res.sort_values(args.sort, ascending=args.asc))
+    df = orm_per_lift(df)
+    df = df.sort_values(args.sort, ascending=args.asc)
+    disp = tabulate.tabulate(df, showindex=False, numalign="right", stralign="left", floatfmt=".1f")
+    print(disp)
 
 
 def show_handler(args: argparse.Namespace) -> None:
     df = load_csv(args.csv_path)
-    print(df[df["name"] == args.name])
+    mask = df["name"] == args.name
+    print(df[mask])
 
 
 def parse_args() -> argparse.Namespace:
