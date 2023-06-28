@@ -16,20 +16,6 @@ COLUMNS = [
     "unilateral",
     "notes",
 ]
-# DESCRIPTIONS = {
-#     "time": "Date",
-#     "name": "Type",
-#     "reps": "Reps",
-#     "weight": "Weight (lb)",
-#     "rest": "Preceding Rest (min)",
-#     "positive": "Positive Tempo (s)",
-#     "hold": "Hold Time (s)",
-#     "negative": "Negative Tempo (s)",
-#     "effort": "Effort (1-5)",
-#     "trainer": "With Trainer (Y/N)",
-#     "unilateral": "Unilateral (Y/N)",
-#     "notes": "Notes",
-# }
 
 
 def convert_effort(entry: str):

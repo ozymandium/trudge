@@ -8,19 +8,64 @@ import ipdb
 import pandas as pd
 import tabulate
 
+DESCRIPTIONS = {
+    "time": "Date",
+    "name": "Type",
+    "reps": "Reps",
+    "weight": "Weight",
+    "rest": "Rest",
+    "positive": "Concentric",
+    "hold": "Hold",
+    "negative": "Eccentric",
+    "effort": "Effort",
+    "trainer": "Trainer",
+    "unilateral": "Unilateral",
+    "notes": "Notes",
+}
+UNITS = {
+    "time": "",
+    "name": "",
+    "reps": "",
+    "weight": "lb",
+    "rest": "min",
+    "positive": "sec",
+    "hold": "sec",
+    "negative": "sec",
+    "effort": "1-5",
+    "trainer": "Y/N",
+    "unilateral": "Y/N",
+    "notes": "",
+}
+TABULATE_KWARGS = {
+"showindex": False, "numalign": "right", "stralign": "left", "floatfmt": ".1f"
+}
+
+def get_headers(columns: list[str]) -> list[str]:
+    headers = []
+    for col in columns:
+        desc = DESCRIPTIONS[col]
+        unit = UNITS[col]
+        unit_add = f"\n({unit})" if unit else ""
+        headers.append(f"{desc}{unit_add}")
+    return headers
+
 
 def orm_handler(args: argparse.Namespace) -> None:
     df = load_csv(args.csv_path)
     df = orm_per_lift(df)
     df = df.sort_values(args.sort, ascending=args.asc)
-    disp = tabulate.tabulate(df, showindex=False, numalign="right", stralign="left", floatfmt=".1f")
+    headers = get_headers(df.columns)
+    disp = tabulate.tabulate(df,headers=headers, **TABULATE_KWARGS)
     print(disp)
 
 
 def show_handler(args: argparse.Namespace) -> None:
     df = load_csv(args.csv_path)
     mask = df["name"] == args.name
-    print(df[mask])
+    df = df[mask]
+    headers = get_headers(df.columns)
+    disp = tabulate.tabulate(df,headers=headers, **TABULATE_KWARGS)
+    print(disp)
 
 
 def parse_args() -> argparse.Namespace:
