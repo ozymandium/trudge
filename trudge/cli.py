@@ -9,6 +9,7 @@ import pandas as pd
 import tabulate
 
 DESCRIPTIONS = {
+    # in the source data
     "time": "Date",
     "name": "Type",
     "reps": "Reps",
@@ -21,8 +22,11 @@ DESCRIPTIONS = {
     "trainer": "Trainer",
     "unilateral": "Unilateral",
     "notes": "Notes",
+    # secondary
+    "orm": "1 Rep Max",
 }
 UNITS = {
+    # in the source data
     "time": "",
     "name": "",
     "reps": "",
@@ -35,6 +39,8 @@ UNITS = {
     "trainer": "Y/N",
     "unilateral": "Y/N",
     "notes": "",
+    # secondary
+    "orm": "lb",
 }
 TABULATE_KWARGS = {
 "showindex": False, "numalign": "right", "stralign": "left", "floatfmt": ".1f"
@@ -68,6 +74,14 @@ def show_handler(args: argparse.Namespace) -> None:
     print(disp)
 
 
+def list_handler(args: argparse.Namespace) -> None:
+    df = load_csv(args.csv_path)
+    names = df["name"].unique()
+    names.sort()
+    disp = "\n".join(names)
+    print(disp)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -82,6 +96,10 @@ def parse_args() -> argparse.Namespace:
     show_parser.add_argument("csv_path", help="Path to CSV tracking file")
     show_parser.add_argument("name", help="Name of the lift to show recorded data for")
     show_parser.set_defaults(func=show_handler)
+
+    list_parser = subparsers.add_parser("list", help="List all tracked lifts")
+    list_parser.add_argument("csv_path", help="Path to CSV tracking file")
+    list_parser.set_defaults(func=list_handler)
 
     return parser.parse_args()
 
