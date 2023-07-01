@@ -47,8 +47,5 @@ CONVERTERS = {
 
 def load_csv(path: str) -> pd.DataFrame:
     return pd.read_csv(
-        path,
-        names=COLUMNS,
-        header=0, # to override header row
-        converters=CONVERTERS
+        path, names=COLUMNS, header=0, converters=CONVERTERS  # to override header row
     )

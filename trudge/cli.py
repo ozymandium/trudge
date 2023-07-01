@@ -42,9 +42,8 @@ UNITS = {
     # secondary
     "orm": "lb",
 }
-TABULATE_KWARGS = {
-"showindex": False, "numalign": "right", "stralign": "left", "floatfmt": ".1f"
-}
+TABULATE_KWARGS = {"showindex": False, "numalign": "right", "stralign": "left", "floatfmt": ".1f"}
+
 
 def get_headers(columns: list[str]) -> list[str]:
     headers = []
@@ -61,7 +60,7 @@ def orm_handler(args: argparse.Namespace) -> None:
     df = orm_per_lift(df)
     df = df.sort_values(args.sort, ascending=args.asc)
     headers = get_headers(df.columns)
-    disp = tabulate.tabulate(df,headers=headers, **TABULATE_KWARGS)
+    disp = tabulate.tabulate(df, headers=headers, **TABULATE_KWARGS)
     print(disp)
 
 
@@ -70,7 +69,7 @@ def show_handler(args: argparse.Namespace) -> None:
     mask = df["name"] == args.name
     df = df[mask]
     headers = get_headers(df.columns)
-    disp = tabulate.tabulate(df,headers=headers, **TABULATE_KWARGS)
+    disp = tabulate.tabulate(df, headers=headers, **TABULATE_KWARGS)
     print(disp)
 
 
@@ -85,11 +84,13 @@ def list_handler(args: argparse.Namespace) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
-    
+
     orm_parser = subparsers.add_parser("orm", help="Highest 1 rep max equivalent for each lift")
     orm_parser.add_argument("csv_path", help="Path to CSV tracking file")
     orm_parser.add_argument("--sort", help="How to sort 1RM (default 1RM)", default="orm")
-    orm_parser.add_argument("--asc", action="store_true", help="Show in ascending order along requested column")
+    orm_parser.add_argument(
+        "--asc", action="store_true", help="Show in ascending order along requested column"
+    )
     orm_parser.set_defaults(func=orm_handler)
 
     show_parser = subparsers.add_parser("show", help="Show raw recorded data for a specific lift")
