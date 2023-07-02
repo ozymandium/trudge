@@ -63,7 +63,7 @@ def orm_series(df: pd.DataFrame) -> pd.Series:
     return pd.Series(orm(reps=df["reps"], weight=df["weight"]), name="orm")
 
 
-def orm_per_lift(df: pd.DataFrame) -> pd.Series:
+def orm_per_lift(df: pd.DataFrame) -> pd.DataFrame:
     max_orm_per_set = pd.DataFrame(columns=("name", "time", "orm"))
     # equivalent ORM for each set
     set_orms = orm_series(df)
