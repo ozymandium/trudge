@@ -4,3 +4,6 @@ tabulate
 ipdb
 black
 mypy
+# for mypy
+pandas-stubs
+types-tabulate

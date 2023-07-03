@@ -10,3 +10,7 @@ CSV_PATH = os.path.join(DATA_DIR, "1.csv")
 class TestGetPlan(unittest.TestCase):
     def test_does_not_except(self):
         df = trudge.csv_util.load_csv(CSV_PATH)
+
+
+if __name__ == '__main__':
+    unittest.main()

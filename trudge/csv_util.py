@@ -1,5 +1,6 @@
 import datetime
 import pandas as pd
+from typing import Callable
 
 # Column ordering. These are the internal names that are used as column keys
 COLUMNS = [
@@ -18,18 +19,18 @@ COLUMNS = [
 ]
 
 
-def convert_effort(entry: str):
+def convert_effort(entry: str) -> int:
     val = int(entry)
     if val < 1 or 5 < val:
         raise Exception("effort {} must be on a 5 star scale".format(entry))
     return val
 
 
-def clean_whitespace(s: str):
+def clean_whitespace(s: str) -> str:
     return s.lstrip(" ").rstrip(" ")
 
 
-CONVERTERS = {
+CONVERTERS: dict[str, Callable] = {
     "time": lambda s: datetime.datetime.fromisoformat(s.replace(" ", "")),
     "name": clean_whitespace,
     "reps": int,

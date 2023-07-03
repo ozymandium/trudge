@@ -1,12 +1,12 @@
 #!/bin/env python3
-from .csv_util import load_csv
-from .metrics import orm_per_lift
+from trudge.csv_util import load_csv
+from trudge.metrics import orm_per_lift
 
 import argparse
 
-import ipdb
 import pandas as pd
 import tabulate
+
 
 DESCRIPTIONS = {
     # in the source data
@@ -42,10 +42,23 @@ UNITS = {
     # secondary
     "orm": "lb",
 }
-TABULATE_KWARGS = {"showindex": False, "numalign": "right", "stralign": "left", "floatfmt": ".1f"}
 
 
-def get_headers(columns: list[str]) -> list[str]:
+def get_headers(columns: pd.Index) -> list[str]:
+    """
+    For an arbitrary pandas DataFrame with column names `columns` get the formatted headers for each
+    column to print for human readable output.
+
+    Parameters
+    ==========
+    columns : pd.Index
+        list of column names, each of which must appear as a key in both DESCRIPTIONS and UNITS
+
+    Returns
+    =======
+    list[str]
+        Order corresponds to input order. List of formatted (including newlines) column headers
+    """
     headers = []
     for col in columns:
         desc = DESCRIPTIONS[col]
@@ -60,7 +73,9 @@ def orm_handler(args: argparse.Namespace) -> None:
     df = orm_per_lift(df)
     df = df.sort_values(args.sort, ascending=args.asc)
     headers = get_headers(df.columns)
-    disp = tabulate.tabulate(df, headers=headers, **TABULATE_KWARGS)
+    disp = tabulate.tabulate(
+        df.to_numpy().tolist(), headers=headers, numalign="right", stralign="left", floatfmt=".1f"
+    )
     print(disp)
 
 
@@ -69,7 +84,9 @@ def show_handler(args: argparse.Namespace) -> None:
     mask = df["name"] == args.name
     df = df[mask]
     headers = get_headers(df.columns)
-    disp = tabulate.tabulate(df, headers=headers, **TABULATE_KWARGS)
+    disp = tabulate.tabulate(
+        df.to_numpy().tolist(), headers=headers, numalign="right", stralign="left", floatfmt=".1f"
+    )
     print(disp)
 
 
@@ -83,7 +100,7 @@ def list_handler(args: argparse.Namespace) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(required=True, dest="cmd", help="command to run")
 
     orm_parser = subparsers.add_parser("orm", help="Highest 1 rep max equivalent for each lift")
     orm_parser.add_argument("csv_path", help="Path to CSV tracking file")
