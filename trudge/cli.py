@@ -74,7 +74,7 @@ def orm_handler(args: argparse.Namespace) -> None:
     df = df.sort_values(args.sort, ascending=args.asc)
     headers = get_headers(df.columns)
     disp = tabulate.tabulate(
-        df.to_numpy().tolist(), headers=headers, numalign="right", stralign="left", floatfmt=".1f"
+        df.to_numpy().tolist(), headers=headers, showindex=False, numalign="right", stralign="left", floatfmt=".1f"
     )
     print(disp)
 
@@ -85,7 +85,7 @@ def show_handler(args: argparse.Namespace) -> None:
     df = df[mask]
     headers = get_headers(df.columns)
     disp = tabulate.tabulate(
-        df.to_numpy().tolist(), headers=headers, numalign="right", stralign="left", floatfmt=".1f"
+        df.to_numpy().tolist(), headers=headers, showindex=False, numalign="right", stralign="left", floatfmt=".1f"
     )
     print(disp)
 
