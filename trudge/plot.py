@@ -80,7 +80,14 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
         xticks=x_ticks,
         xticklabels=[],
     )
-    # cursor(axes[0])
+    cursor(
+        axes[0],
+        annotation_kwargs={
+            "arrowprops": {"arrowstyle": "->", "color": "y"},
+            "bbox": {"color": "y"},
+            "color": "k",
+        },
+    )
 
     # bottom plot: number of reps
     axes[1].bar(
