@@ -29,6 +29,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     x_ticks = [0]
     x_labels = [record["time"][record.index[0]].date().isoformat()]
     # mask means indexes are no longer a range, so we have to use the index property
+    # FIXME: could probably do this inline somehow
     for i1, i2 in zip(record.index[:-1], record.index[1:]):
         t1 = record["time"][i1]
         t2 = record["time"][i2]
@@ -38,6 +39,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
 
     fig, axes = plt.subplots(2, 1, sharex=True)
 
+    # top plot: lifted weight and equivalent 1rm
     axes[0].bar(
         x_data,
         set_orms,
@@ -53,19 +55,14 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     axes[0].grid(alpha=0.3)
     axes[0].set_title(f"1RM History:\n{name}")
 
-    # tick only the first set of each workout
-    axes[0].set_xticks(
-        x_ticks,
-        labels=x_labels,
-    )
-
+    # bottom plot: number of reps
     axes[1].bar(
         x_data,
         record["reps"],
     )
     axes[1].grid(alpha=0.3)
     axes[1].set_ylabel(trudge.display.get_header("reps"))
-
-    # axes[1].set_xlabel("Date")
+    # tick only the first set of each workout
+    axes[1].set_xticks(x_ticks, labels=x_labels, rotation=45)
 
     plt.show()
