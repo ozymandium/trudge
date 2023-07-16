@@ -16,6 +16,7 @@ class OrmFormula(enum.Enum):
 
 
 DEFAULT_ORM_FORMULA = OrmFormula.Brzycki
+ORM_PER_LIFT_COLS = ("name", "time", "orm")
 
 
 def orm(reps: Any, weight: Any, formula: OrmFormula = DEFAULT_ORM_FORMULA) -> Any:
@@ -76,7 +77,7 @@ def orm_per_lift(record: pd.DataFrame, set_orms: pd.Series) -> pd.DataFrame:
     set_orms : pd.Series
         equivalent 1rm for each row in `record`, output of `orm_series` above
     """
-    max_orm_per_set = pd.DataFrame(columns=("name", "time", "orm"))
+    max_orm_per_set = pd.DataFrame(columns=ORM_PER_LIFT_COLS)
     # unique lift names
     max_orm_per_set["name"] = record["name"].unique()
     for out_idx, name in enumerate(max_orm_per_set["name"]):

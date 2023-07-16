@@ -80,7 +80,7 @@ def parse_args() -> argparse.Namespace:
         "--sort",
         help="How to sort 1RM (default 1RM)",
         default="orm",
-        choices=["time", "name", "orm"],
+        choices=trudge.metrics.ORM_PER_LIFT_COLS,
     )
     orm_list_ssp.add_argument(
         "--asc", action="store_true", help="Show in ascending order along requested column"
