@@ -1,6 +1,7 @@
 # pip
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from matplotlib.ticker import MaxNLocator
 import pandas as pd
 import numpy as np
 
@@ -55,7 +56,8 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
         weight_data.append(record["weight"][i2])
         rep_data.append(record["reps"][i2])
 
-    fig, axes = plt.subplots(2, 1, sharex=True)
+    plt.figure()
+    axes = [plt.subplot(gs) for gs in gridspec.GridSpec(2, 1, height_ratios=[2, 1])]
 
     # top plot: lifted weight and equivalent 1rm
     axes[0].bar(
@@ -72,6 +74,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     axes[0].set_ylabel(trudge.display.get_header("weight"))
     axes[0].grid(alpha=0.3)
     axes[0].set_title(f"1RM History:\n{name}")
+    axes[0].legend()
 
     # bottom plot: number of reps
     axes[1].bar(
@@ -82,5 +85,8 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     axes[1].set_ylabel(trudge.display.get_header("reps"))
     # tick only the first set of each workout
     axes[1].set_xticks(x_ticks, labels=x_labels, rotation=60)
+    # y ticks only on integers
+    axes[1].yaxis.set_major_locator(MaxNLocator(integer=True))
 
+    plt.tight_layout()
     plt.show()
