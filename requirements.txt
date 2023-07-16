@@ -1,5 +1,6 @@
 pandas==2.0.1
 tabulate
+matplotlib
 # development
 ipdb
 black

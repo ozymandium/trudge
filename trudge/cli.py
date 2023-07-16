@@ -1,80 +1,45 @@
 #!/bin/env python3
-from trudge.csv_util import load_csv
-from trudge.metrics import orm_per_lift
-
+# system
 import argparse
 
+# pip
 import pandas as pd
 import tabulate
 
-
-DESCRIPTIONS = {
-    # in the source data
-    "time": "Date",
-    "name": "Type",
-    "reps": "Reps",
-    "weight": "Weight",
-    "rest": "Rest",
-    "positive": "Concentric",
-    "hold": "Hold",
-    "negative": "Eccentric",
-    "effort": "Effort",
-    "trainer": "Trainer",
-    "unilateral": "Unilateral",
-    "notes": "Notes",
-    # secondary
-    "orm": "1 Rep Max",
-}
-UNITS = {
-    # in the source data
-    "time": "",
-    "name": "",
-    "reps": "",
-    "weight": "lb",
-    "rest": "min",
-    "positive": "sec",
-    "hold": "sec",
-    "negative": "sec",
-    "effort": "1-5",
-    "trainer": "Y/N",
-    "unilateral": "Y/N",
-    "notes": "",
-    # secondary
-    "orm": "lb",
-}
+# local
+import trudge
 
 
-def get_headers(columns: pd.Index) -> list[str]:
-    """
-    For an arbitrary pandas DataFrame with column names `columns` get the formatted headers for each
-    column to print for human readable output.
+def orm_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
+    set_orms = trudge.metrics.orm_series(record)
 
-    Parameters
-    ==========
-    columns : pd.Index
-        list of column names, each of which must appear as a key in both DESCRIPTIONS and UNITS
+    if args.list:
+        res = trudge.metrics.orm_per_lift(record, set_orms)
+        res = res.sort_values(args.sort, ascending=args.asc)
+        headers = trudge.display.get_headers(res, newline=True)
+        disp = tabulate.tabulate(
+            res.to_numpy().tolist(),
+            headers=headers,
+            showindex=False,
+            numalign="right",
+            stralign="left",
+            floatfmt=".1f",
+        )
+        print(disp)
 
-    Returns
-    =======
-    list[str]
-        Order corresponds to input order. List of formatted (including newlines) column headers
-    """
-    headers = []
-    for col in columns:
-        desc = DESCRIPTIONS[col]
-        unit = UNITS[col]
-        unit_add = f"\n({unit})" if unit else ""
-        headers.append(f"{desc}{unit_add}")
-    return headers
+    elif args.plot:
+        trudge.plot.plot_orm(record, set_orms, args.plot)
+
+    else:
+        print("No ")
 
 
-def orm_handler(args: argparse.Namespace) -> None:
-    df = load_csv(args.csv_path)
-    df = orm_per_lift(df)
-    df = df.sort_values(args.sort, ascending=args.asc)
-    headers = get_headers(df.columns)
+def show_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
+    mask = record["name"] == args.name
+    res = record[mask]
+    headers = trudge.display.get_headers(res, newline=True)
     disp = tabulate.tabulate(
-        df.to_numpy().tolist(),
+        res.to_numpy().tolist(),
         headers=headers,
         showindex=False,
         numalign="right",
@@ -84,49 +49,44 @@ def orm_handler(args: argparse.Namespace) -> None:
     print(disp)
 
 
-def show_handler(args: argparse.Namespace) -> None:
-    df = load_csv(args.csv_path)
-    mask = df["name"] == args.name
-    df = df[mask]
-    headers = get_headers(df.columns)
-    disp = tabulate.tabulate(
-        df.to_numpy().tolist(),
-        headers=headers,
-        showindex=False,
-        numalign="right",
-        stralign="left",
-        floatfmt=".1f",
-    )
-    print(disp)
-
-
-def list_handler(args: argparse.Namespace) -> None:
-    df = load_csv(args.csv_path)
-    names = df["name"].unique()
-    names.sort()
-    disp = "\n".join(names)
+def list_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
+    res = record["name"].unique()
+    res.sort()
+    disp = "\n".join(res)
     print(disp)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+
     subparsers = parser.add_subparsers(required=True, dest="cmd", help="command to run")
 
+    parser.add_argument("csv_path", help="Path to CSV tracking file")
+
     orm_parser = subparsers.add_parser("orm", help="Highest 1 rep max equivalent for each lift")
-    orm_parser.add_argument("csv_path", help="Path to CSV tracking file")
-    orm_parser.add_argument("--sort", help="How to sort 1RM (default 1RM)", default="orm")
+    orm_parser.add_argument("-l", "--list", action="store_true", help="List 1RM for all lifts")
+    orm_parser.add_argument(
+        "-p",
+        "--plot",
+        type=str,
+        help="Plot 1RM history for specific lift. To see options, `trudge list`",
+    )
+    orm_parser.add_argument(
+        "--sort",
+        help="How to sort 1RM (default 1RM)",
+        default="orm",
+        choices=["time", "name", "orm"],
+    )
     orm_parser.add_argument(
         "--asc", action="store_true", help="Show in ascending order along requested column"
     )
     orm_parser.set_defaults(func=orm_handler)
 
     show_parser = subparsers.add_parser("show", help="Show raw recorded data for a specific lift")
-    show_parser.add_argument("csv_path", help="Path to CSV tracking file")
     show_parser.add_argument("name", help="Name of the lift to show recorded data for")
     show_parser.set_defaults(func=show_handler)
 
     list_parser = subparsers.add_parser("list", help="List all tracked lifts")
-    list_parser.add_argument("csv_path", help="Path to CSV tracking file")
     list_parser.set_defaults(func=list_handler)
 
     return parser.parse_args()
@@ -134,7 +94,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    args.func(args)
+    record = trudge.csv.load(args.csv_path)
+    args.func(record, args)
 
 
 if __name__ == "__main__":

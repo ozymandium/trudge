@@ -2,6 +2,7 @@ import datetime
 import pandas as pd
 from typing import Callable
 
+
 # Column ordering. These are the internal names that are used as column keys
 COLUMNS = [
     "time",
@@ -19,34 +20,34 @@ COLUMNS = [
 ]
 
 
-def convert_effort(entry: str) -> int:
+def _convert_effort(entry: str) -> int:
     val = int(entry)
     if val < 1 or 5 < val:
         raise Exception("effort {} must be on a 5 star scale".format(entry))
     return val
 
 
-def clean_whitespace(s: str) -> str:
+def _clean_whitespace(s: str) -> str:
     return s.lstrip(" ").rstrip(" ")
 
 
-CONVERTERS: dict[str, Callable] = {
+_CONVERTERS: dict[str, Callable] = {
     "time": lambda s: datetime.datetime.fromisoformat(s.replace(" ", "")),
-    "name": clean_whitespace,
+    "name": _clean_whitespace,
     "reps": int,
     "weight": float,
     "rest": float,
     "positive": int,
     "hold": int,
     "negative": int,
-    "effort": convert_effort,
-    "trainer": lambda s: {"Y": True, "N": False}[clean_whitespace(s)],
-    "unilateral": lambda s: {"Y": True, "N": False}[clean_whitespace(s)],
-    "notes": clean_whitespace,
+    "effort": _convert_effort,
+    "trainer": lambda s: {"Y": True, "N": False}[_clean_whitespace(s)],
+    "unilateral": lambda s: {"Y": True, "N": False}[_clean_whitespace(s)],
+    "notes": _clean_whitespace,
 }
 
 
-def load_csv(path: str) -> pd.DataFrame:
+def load(path: str) -> pd.DataFrame:
     return pd.read_csv(
-        path, names=COLUMNS, header=0, converters=CONVERTERS  # to override header row
+        path, names=COLUMNS, header=0, converters=_CONVERTERS  # to override header row
     )
