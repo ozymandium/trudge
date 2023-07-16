@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MaxNLocator
+from mplcursors import cursor
 import pandas as pd
 import numpy as np
 
@@ -71,11 +72,15 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
         weight_data,
         label="Lift",
     )
-    axes[0].set_ylabel(trudge.display.get_header("weight"))
     axes[0].grid(alpha=0.3)
-    axes[0].set_title(f"1RM History:\n{name}")
     axes[0].legend()
-    axes[0].set(xticks=x_ticks, xticklabels=[])
+    axes[0].set(
+        title=f"1RM History:\n{name}",
+        ylabel=trudge.display.get_header("weight"),
+        xticks=x_ticks,
+        xticklabels=[],
+    )
+    # cursor(axes[0])
 
     # bottom plot: number of reps
     axes[1].bar(
@@ -83,7 +88,9 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
         rep_data,
     )
     axes[1].grid(alpha=0.3)
-    axes[1].set_ylabel(trudge.display.get_header("reps"))
+    axes[1].set(
+        ylabel=trudge.display.get_header("reps"),
+    )
     # tick only the first set of each workout
     axes[1].set_xticks(x_ticks, labels=x_labels, rotation=60)
     # y ticks only on integers
