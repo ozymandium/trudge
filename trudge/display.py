@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 
@@ -20,9 +21,9 @@ _DESCRIPTIONS = {
 }
 _UNITS = {
     # in the source data
-    "time": "",
-    "name": "",
-    "reps": "",
+    "time": None,
+    "name": None,
+    "reps": None,
     "weight": "lb",
     "rest": "min",
     "positive": "sec",
@@ -31,7 +32,7 @@ _UNITS = {
     "effort": "1-5",
     "trainer": "Y/N",
     "unilateral": "Y/N",
-    "notes": "",
+    "notes": None,
     # secondary
     "orm": "lb",
 }
@@ -40,9 +41,10 @@ _UNITS = {
 def get_header(name: str, newline: bool = False) -> str:
     desc = _DESCRIPTIONS[name]
     unit = _UNITS[name]
-    sep = "\n" if newline else " "  # if you're on windows fuck you
-    unit_add = f"{sep}({unit})" if unit else ""
-    return f"{desc}{unit_add}"
+    if unit is None:
+        return desc
+    sep = os.linesep if newline else " "
+    return f"{desc}{sep}[{unit}]"
 
 
 def get_headers(df: pd.DataFrame, newline: bool = False) -> list[str]:
@@ -60,4 +62,4 @@ def get_headers(df: pd.DataFrame, newline: bool = False) -> list[str]:
     list[str]
         Order corresponds to input order. List of formatted (including newlines) column headers
     """
-    return get_header([get_header(col, newline) for col in df.cols])
+    return [get_header(col, newline=newline) for col in df.columns]

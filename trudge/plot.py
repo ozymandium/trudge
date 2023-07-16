@@ -75,6 +75,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     axes[0].grid(alpha=0.3)
     axes[0].set_title(f"1RM History:\n{name}")
     axes[0].legend()
+    axes[0].set(xticks=x_ticks, xticklabels=[])
 
     # bottom plot: number of reps
     axes[1].bar(

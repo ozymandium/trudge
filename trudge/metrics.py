@@ -15,7 +15,10 @@ class OrmFormula(enum.Enum):
     Wathan = enum.auto()
 
 
-def orm(reps: Any, weight: Any, formula: OrmFormula = OrmFormula.Brzycki) -> Any:
+DEFAULT_ORM_FORMULA = OrmFormula.Brzycki
+
+
+def orm(reps: Any, weight: Any, formula: OrmFormula = DEFAULT_ORM_FORMULA) -> Any:
     """https://www.athlegan.com/calculate-1rm
 
     Parameters
@@ -37,16 +40,17 @@ def orm(reps: Any, weight: Any, formula: OrmFormula = OrmFormula.Brzycki) -> Any
     if formula == OrmFormula.Lander:
         return (100.0 * weight) / (101.3 - 2.67123 * reps)
     if formula == OrmFormula.Lombardi:
-        return weight * reps ** 0.1
+        return weight * reps**0.1
     if formula == OrmFormula.Mayhew:
         return (100.0 * weight) / (52.2 + (41.9 * math.e - 0.055 * reps))
     if formula == OrmFormula.OConner:
         return weight * (1 + 0.025 * reps)
     if formula == OrmFormula.Wathan:
-        return (100.0 * weight) / (48.8 + (53.8 * math.e ** -0.075 * reps))
+        return (100.0 * weight) / (48.8 + (53.8 * math.e**-0.075 * reps))
+    raise RuntimeError(f"Unsupported formula {formula}")
 
 
-def orm_series(record: pd.DataFrame) -> pd.Series:
+def orm_series(record: pd.DataFrame, formula: OrmFormula = DEFAULT_ORM_FORMULA) -> pd.Series:
     """
     Compute equivalent 1 rep max for every set in the record.
 
@@ -60,7 +64,7 @@ def orm_series(record: pd.DataFrame) -> pd.Series:
     pd.Series
         1 rep max for each set. Index into `record` is same as index into the return.
     """
-    return pd.Series(orm(reps=record["reps"], weight=record["weight"]), name="orm")
+    return pd.Series(orm(reps=record["reps"], weight=record["weight"], formula=formula), name="orm")
 
 
 def orm_per_lift(record: pd.DataFrame, set_orms: pd.Series) -> pd.DataFrame:
@@ -70,7 +74,7 @@ def orm_per_lift(record: pd.DataFrame, set_orms: pd.Series) -> pd.DataFrame:
     record : pd.DataFrame
         Presumed to be the raw parsed CSV with no extra information
     set_orms : pd.Series
-        equivalent 1rm for each row in `record`
+        equivalent 1rm for each row in `record`, output of `orm_series` above
     """
     max_orm_per_set = pd.DataFrame(columns=("name", "time", "orm"))
     # unique lift names
