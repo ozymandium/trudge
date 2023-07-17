@@ -18,12 +18,14 @@ COLUMNS = [
     "unilateral",
     "notes",
 ]
+MIN_EFFORT = 1
+MAX_EFFORT = 5
 
 
 def _convert_effort(entry: str) -> int:
     val = int(entry)
-    if val < 1 or 5 < val:
-        raise Exception("effort {} must be on a 5 star scale".format(entry))
+    if val < MIN_EFFORT or MAX_EFFORT < val:
+        raise Exception(f"invalid effort {entry}")
     return val
 
 

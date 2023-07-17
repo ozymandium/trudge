@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MaxNLocator
+from matplotlib.colors import Normalize
+import seaborn as sns
 from mplcursors import cursor
 import pandas as pd
 import numpy as np
@@ -34,6 +36,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     orm_data = [0, set_orms[zero_idx]]
     weight_data = [0, record["weight"][zero_idx]]
     rep_data = [0, record["reps"][zero_idx]]
+    effort_data = [0, record["effort"][zero_idx]]
     # label the date for the first set of each workout
     x_ticks = [0]
     x_labels = [record["time"][zero_idx].date().isoformat()]
@@ -51,11 +54,13 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
             orm_data.append(0)
             weight_data.append(0)
             rep_data.append(0)
+            effort_data.append(0)
 
         x_data.append(x_data[-1] + 1)
         orm_data.append(set_orms[i2])
         weight_data.append(record["weight"][i2])
         rep_data.append(record["reps"][i2])
+        effort_data.append(record["effort"][i2])
 
     plt.figure()
     axes = [plt.subplot(gs) for gs in gridspec.GridSpec(2, 1, height_ratios=[2, 1])]
@@ -75,7 +80,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     axes[0].grid(alpha=0.3)
     axes[0].legend()
     axes[0].set(
-        title=f"1RM History:\n{name}",
+        title=f"1RM History\n{name}",
         ylabel=trudge.display.get_header("weight"),
         xticks=x_ticks,
         xticklabels=[],
@@ -90,13 +95,18 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     )
 
     # bottom plot: number of reps
+    effort_cmap = sns.color_palette("blend:green,darkred", as_cmap=True)
+    effort_norm = Normalize(vmin=trudge.csv.MIN_EFFORT, vmax=trudge.csv.MAX_EFFORT)
+    effort_clrs = effort_cmap(effort_norm(effort_data))
+
     axes[1].bar(
         x_data,
         rep_data,
+        color=effort_clrs,
     )
     axes[1].grid(alpha=0.3)
     axes[1].set(
-        ylabel=trudge.display.get_header("reps"),
+        ylabel=f"{trudge.display.get_header('reps')}\nColored by Effort",
     )
     # tick only the first set of each workout
     axes[1].set_xticks(x_ticks, labels=x_labels, rotation=60)
