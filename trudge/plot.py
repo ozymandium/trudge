@@ -1,12 +1,12 @@
 # pip
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.ticker import MaxNLocator
 from matplotlib.colors import Normalize
-import seaborn as sns
+from matplotlib.ticker import MaxNLocator
 from mplcursors import cursor
-import pandas as pd
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 
 # local
 import trudge.display
@@ -15,18 +15,11 @@ import trudge.display
 plt.style.use("dark_background")
 
 
-def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
-    """
-
-    TODO: color bars by effort level from green to red
-    """
+def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
+    """ """
     if record.shape[0] != set_orms.shape[0]:
         raise RuntimeError(f"size mismatch {record.size} != {set_orms.size}")
 
-    mask = record["name"] == name
-
-    record = record[mask]
-    set_orms = set_orms[mask]
     N = record.shape[0]
 
     # TODO: break between workouts
@@ -66,21 +59,12 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     axes = [plt.subplot(gs) for gs in gridspec.GridSpec(2, 1, height_ratios=[2, 1])]
 
     # top plot: lifted weight and equivalent 1rm
-    axes[0].bar(
-        x_data,
-        orm_data,
-        label="1RM",
-        color="r",
-    )
-    axes[0].bar(
-        x_data,
-        weight_data,
-        label="Lift",
-    )
+    axes[0].bar(x_data, orm_data, label="1RM", color="r")
+    axes[0].bar(x_data, weight_data, label="Lift")
     axes[0].grid(alpha=0.3)
     axes[0].legend()
     axes[0].set(
-        title=f"1RM History\n{name}",
+        title=f"1RM History\n{desc}",
         ylabel=trudge.display.get_header("weight"),
         xticks=x_ticks,
         xticklabels=[],
@@ -99,15 +83,9 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, name: str) -> None:
     effort_norm = Normalize(vmin=trudge.csv.MIN_EFFORT, vmax=trudge.csv.MAX_EFFORT)
     effort_clrs = effort_cmap(effort_norm(effort_data))
 
-    axes[1].bar(
-        x_data,
-        rep_data,
-        color=effort_clrs,
-    )
+    axes[1].bar(x_data, rep_data, color=effort_clrs)
     axes[1].grid(alpha=0.3)
-    axes[1].set(
-        ylabel=f"{trudge.display.get_header('reps')}\nColored by Effort",
-    )
+    axes[1].set(ylabel=f"{trudge.display.get_header('reps')}\nColored by Effort")
     # tick only the first set of each workout
     axes[1].set_xticks(x_ticks, labels=x_labels, rotation=60)
     # y ticks only on integers

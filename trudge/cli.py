@@ -29,11 +29,12 @@ def orm_list_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
 def orm_plot_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
     # FIXME: consolidate this call with `orm_list_handler`
     set_orms = trudge.metrics.orm_series(record)
-    trudge.plot.plot_orm(record, set_orms, args.name)
+    mask = trudge.util.name_mask(record, args.name)
+    trudge.plot.plot_orm(record[mask], set_orms[mask], desc=args.name)
 
 
 def show_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
-    mask = record["name"] == args.name
+    mask = trudge.util.name_mask(record, args.name)
     res = record[mask]
     headers = trudge.display.get_headers(res, newline=True)
     disp = tabulate.tabulate(
