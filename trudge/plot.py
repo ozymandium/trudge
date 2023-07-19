@@ -18,14 +18,16 @@ plt.style.use("dark_background")
 
 def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     """ """
-    COLS = ["orm", "weight", "reps", "effort"]
+    COLS = ["orm", "weight", "reps", "effort", "orig_idx"]
     if record.shape[0] != set_orms.shape[0]:
         raise RuntimeError(f"size mismatch {record.size} != {set_orms.size}")
     if not np.all(record.index == set_orms.index):
         raise RuntimeError("indices don't match")
 
+    # before we blow everything out of the water reindexing, store the original indexes for each row
+    orig_idxs = pd.DataFrame({"orig_idx": record.index}, index=record.index)
     # merge the 2 data frames and reindex to speed up cluster finding
-    data = record.join(set_orms).reset_index()
+    data = record.join(set_orms).join(orig_idxs).reset_index()
     # get indices for new rows before first set of each session
     new_row_idxs = np.array([s[0] for s in trudge.util.session_clusters(data)]) - 0.5
     # remove unnecessary columns now that we've used "time" to find clusters
@@ -37,10 +39,12 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     data = data.sort_index().reset_index(drop=True)
 
     # dataframe of just labels at the breaks, but indices need to match
-    sessions = data["reps"]
-
     import ipdb
-    ipdb.set_trace()
+
+    sessions = pd.DataFrame(columns=["label"])
+    for idx in data.index[np.isnan(data["reps"])]:
+        orig_idx = data.loc[idx + 1]["orig_idx"]
+        sessions.loc[idx] = {"label": record.loc[orig_idx]["time"].date().isoformat()}
 
     plt.figure()
     axes = [plt.subplot(gs) for gs in gridspec.GridSpec(2, 1, height_ratios=[2, 1])]
@@ -55,7 +59,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     axes[0].set(
         title=f"1RM History\n{desc}",
         ylabel=trudge.display.get_header("weight"),
-        xticks=dividers.index,
+        xticks=sessions.index,
         xticklabels=[],
     )
 
@@ -80,8 +84,8 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     # tick only the first set of each workout
     # for some reason the only way to get ticks to show up on the bottom is to have the same ticks
     # on the top but just not show them??. something about sharex probably.
-    axes[0].set_xticks(dividers.index, labels=dividers["label"], rotation=60)
-    axes[1].set_xticks(dividers.index, labels=dividers["label"], rotation=60)
+    axes[0].set_xticks(sessions.index, labels=sessions["label"], rotation=60)
+    axes[1].set_xticks(sessions.index, labels=sessions["label"], rotation=60)
     axes[0].tick_params(labelbottom=False)
 
     # clicking on the top plot makes stuff happen
