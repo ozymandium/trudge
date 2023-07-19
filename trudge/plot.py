@@ -20,8 +20,8 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     """ """
     if record.shape[0] != set_orms.shape[0]:
         raise RuntimeError(f"size mismatch {record.size} != {set_orms.size}")
-
-    N = record.shape[0]
+    if not np.all(record.index == set_orms.index):
+        raise RuntimeError("indices don't match")
 
     zero_idx = record.index[0]
     # what gets plotted
@@ -80,19 +80,6 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
         xticks=dividers.index,
         xticklabels=[],
     )
-    cursor = mplcursor(
-        axes[0],
-        annotation_kwargs={
-            "arrowprops": {"arrowstyle": "->", "color": "y"},
-            "bbox": {"color": "y"},
-            "color": "k",
-        },
-    )
-
-    @cursor.connect("add")
-    def onclick(sel):
-        print(sel)
-        print(sel.index)
 
     # bottom plot: number of reps
     effort_cmap = sns.color_palette("blend:green,darkred", as_cmap=True)
@@ -112,13 +99,27 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     # FIXME: figure out how to do this automatically by using `gridspec` alongside `subplots`
     #        instead of in place of it.
     axes[1].sharex(axes[0])
-
     # tick only the first set of each workout
     # for some reason the only way to get ticks to show up on the bottom is to have the same ticks
     # on the top but just not show them??. something about sharex probably.
     axes[0].set_xticks(dividers.index, labels=dividers["label"], rotation=60)
     axes[1].set_xticks(dividers.index, labels=dividers["label"], rotation=60)
     axes[0].tick_params(labelbottom=False)
+
+    # clicking on the top plot makes stuff happen
+    cursor = mplcursor(
+        axes[0],
+        annotation_kwargs={
+            "arrowprops": {"arrowstyle": "->", "color": "y"},
+            "bbox": {"color": "y"},
+            "color": "k",
+        },
+    )
+
+    @cursor.connect("add")
+    def onclick(sel):
+        print(sel)
+        print(sel.index)
 
     plt.tight_layout()
     plt.show()
