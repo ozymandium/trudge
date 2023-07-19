@@ -11,6 +11,7 @@ import seaborn as sns
 
 # local
 import trudge.display
+import trudge.util
 
 # only psychopaths use white backgrounds
 plt.style.use("dark_background")
@@ -39,8 +40,6 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     data = data.sort_index().reset_index(drop=True)
 
     # dataframe of just labels at the breaks, but indices need to match
-    import ipdb
-
     sessions = pd.DataFrame(columns=["label"])
     for idx in data.index[np.isnan(data["reps"])]:
         orig_idx = data.loc[idx + 1]["orig_idx"]
@@ -100,8 +99,11 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
 
     @cursor.connect("add")
     def onclick(sel):
-        print(sel)
-        print(sel.index)
+        record_idx = data.loc[sel.index]["orig_idx"]
+        # import ipdb
+        # ipdb.set_trace()
+        res = record.loc[record_idx].to_frame().transpose()
+        trudge.display.print_df(res)
 
     plt.tight_layout()
     plt.show()

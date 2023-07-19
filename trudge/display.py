@@ -1,5 +1,7 @@
 import os
+
 import pandas as pd
+import tabulate
 
 
 _DESCRIPTIONS = {
@@ -63,3 +65,16 @@ def get_headers(df: pd.DataFrame, newline: bool = False) -> list[str]:
         Order corresponds to input order. List of formatted (including newlines) column headers
     """
     return [get_header(col, newline=newline) for col in df.columns]
+
+
+def print_df(df: pd.DataFrame) -> None:
+    headers = get_headers(df, newline=True)
+    disp = tabulate.tabulate(
+        df.to_numpy().tolist(),
+        headers=headers,
+        showindex=False,
+        numalign="right",
+        stralign="left",
+        floatfmt=".1f",
+    )
+    print(disp)

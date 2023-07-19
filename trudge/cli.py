@@ -4,7 +4,6 @@ import argparse
 
 # pip
 import pandas as pd
-import tabulate
 
 # local
 import trudge
@@ -14,16 +13,7 @@ def orm_list_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
     set_orms = trudge.metrics.orm_series(record)
     res = trudge.metrics.orm_per_lift(record, set_orms)
     res = res.sort_values(args.sort, ascending=args.asc)
-    headers = trudge.display.get_headers(res, newline=True)
-    disp = tabulate.tabulate(
-        res.to_numpy().tolist(),
-        headers=headers,
-        showindex=False,
-        numalign="right",
-        stralign="left",
-        floatfmt=".1f",
-    )
-    print(disp)
+    trudge.display.print_df(res)
 
 
 def orm_plot_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
@@ -36,23 +26,12 @@ def orm_plot_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
 def show_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
     mask = trudge.util.name_mask(record, args.name)
     res = record[mask]
-    headers = trudge.display.get_headers(res, newline=True)
-    disp = tabulate.tabulate(
-        res.to_numpy().tolist(),
-        headers=headers,
-        showindex=False,
-        numalign="right",
-        stralign="left",
-        floatfmt=".1f",
-    )
-    print(disp)
+    trudge.display.print_df(res)
 
 
 def list_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
-    res = record["name"].unique()
-    res.sort()
-    disp = "\n".join(res)
-    print(disp)
+    res = record["name"].unique().sort()
+    print("\n".join(res))
 
 
 def parse_args() -> argparse.Namespace:
