@@ -1,3 +1,6 @@
+# system
+import os
+
 # pip
 from matplotlib.colors import Normalize
 from matplotlib.ticker import MaxNLocator
@@ -25,10 +28,13 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     if not np.all(record.index == set_orms.index):
         raise RuntimeError("indices don't match")
 
+    # keep this around to reference when the plots are clicked later
+    orig = record.join(set_orms)
+
     # before we blow everything out of the water reindexing, store the original indexes for each row
-    orig_idxs = pd.DataFrame({"orig_idx": record.index}, index=record.index)
+    orig_idxs = pd.DataFrame({"orig_idx": orig.index}, index=orig.index)
     # merge the 2 data frames and reindex to speed up cluster finding
-    data = record.join(set_orms).join(orig_idxs).reset_index()
+    data = orig.join(orig_idxs).reset_index()
     # get indices for new rows before first set of each session
     new_row_idxs = np.array([s[0] for s in trudge.util.session_clusters(data)]) - 0.5
     # remove unnecessary columns now that we've used "time" to find clusters
@@ -99,10 +105,11 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
 
     @cursor.connect("add")
     def onclick(sel):
-        record_idx = data.loc[sel.index]["orig_idx"]
+        os.system("clear")
+        orig_idx = data.loc[sel.index]["orig_idx"]
         # import ipdb
         # ipdb.set_trace()
-        res = record.loc[record_idx].to_frame().transpose()
+        res = orig.loc[orig_idx].to_frame().transpose()
         trudge.display.print_df(res)
 
     plt.tight_layout()
