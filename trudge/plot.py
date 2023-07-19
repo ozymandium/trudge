@@ -18,51 +18,29 @@ plt.style.use("dark_background")
 
 def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     """ """
+    COLS = ["orm", "weight", "reps", "effort"]
     if record.shape[0] != set_orms.shape[0]:
         raise RuntimeError(f"size mismatch {record.size} != {set_orms.size}")
     if not np.all(record.index == set_orms.index):
         raise RuntimeError("indices don't match")
 
-    zero_idx = record.index[0]
-    # what gets plotted
-    data = pd.DataFrame(columns=["orm", "weight", "reps", "effort"])
-    data.loc[0] = {
-        "orm": 0,
-        "weight": 0,
-        "reps": 0,
-        "effort": 0,
-    }
-    data.loc[1] = {
-        "orm": set_orms[zero_idx],
-        "weight": record["weight"][zero_idx],
-        "reps": record["reps"][zero_idx],
-        "effort": record["effort"][zero_idx],
-    }
-    # label the date for the first set of each workout
-    dividers = pd.DataFrame(columns=["label"])
-    dividers.loc[0] = record["time"][zero_idx].date().isoformat()
-    # mask means indexes are no longer a range, so we have to use the index property
-    # FIXME: could probably do this inline somehow
-    for zero_idx, (i1, i2) in enumerate(zip(record.index[:-1], record.index[1:])):
-        t1 = record["time"][i1]
-        t2 = record["time"][i2]
-        if t1 != t2:
-            dividers.loc[len(data)] = t2.date().isoformat()
-            data.loc[len(data)] = {
-                "orm": np.nan,
-                "weight": np.nan,
-                "reps": np.nan,
-                "effort": np.nan,
-            }
-        data.loc[len(data)] = {
-            "orm": set_orms[i2],
-            "weight": record["weight"][i2],
-            "reps": record["reps"][i2],
-            "effort": record["effort"][i2],
-        }
+    # merge the 2 data frames and reindex to speed up cluster finding
+    data = record.join(set_orms).reset_index()
+    # get indices for new rows before first set of each session
+    new_row_idxs = np.array([s[0] for s in trudge.util.session_clusters(data)]) - 0.5
+    # remove unnecessary columns now that we've used "time" to find clusters
+    data = data.drop([c for c in data.columns if c not in COLS], axis="columns")
+    # insert empty rows where we want breaks
+    for new_row_idx in new_row_idxs:
+        data.loc[new_row_idx] = {c: np.nan for c in COLS}
+    # sort and redo the indexing so the new rows aren't at the end
+    data = data.sort_index().reset_index(drop=True)
 
-    # FIXME: alternative to all this is just to insert a new row everytime the date changes?? idk
-    #        this is very inelegant but whatever it works.
+    # dataframe of just labels at the breaks, but indices need to match
+    sessions = data["reps"]
+
+    import ipdb
+    ipdb.set_trace()
 
     plt.figure()
     axes = [plt.subplot(gs) for gs in gridspec.GridSpec(2, 1, height_ratios=[2, 1])]
