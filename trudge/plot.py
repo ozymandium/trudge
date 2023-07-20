@@ -31,6 +31,9 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     # keep this around to reference when the plots are clicked later
     orig = record.join(set_orms)
 
+    # want to print out the entire session each time we click a set
+    orig_session_clusters = trudge.util.session_clusters(orig)
+
     # before we blow everything out of the water reindexing, store the original indexes for each row
     orig_idxs = pd.DataFrame({"orig_idx": orig.index}, index=orig.index)
     # merge the 2 data frames and reindex to speed up cluster finding
@@ -107,10 +110,10 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
     def onclick(sel):
         os.system("clear")
         orig_idx = data.loc[sel.index]["orig_idx"]
-        # import ipdb
-        # ipdb.set_trace()
-        res = orig.loc[orig_idx].to_frame().transpose()
-        trudge.display.print_df(res)
+        matching_clusters = [cluster for cluster in orig_session_clusters if orig_idx in cluster]
+        assert len(matching_clusters) == 1
+        session_idxs = matching_clusters[0]
+        trudge.display.print_df(orig.loc[session_idxs])
 
     plt.tight_layout()
     plt.show()
