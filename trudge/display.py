@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import pandas as pd
 import tabulate
@@ -38,6 +39,41 @@ _UNITS = {
     # secondary
     "orm": "lb",
 }
+_WIDTHS = {
+    # in the source data
+    "time": None,
+    "name": 32,
+    "reps": None,
+    "weight": None,
+    "rest": None,
+    "positive": None,
+    "hold": None,
+    "negative": None,
+    "effort": None,
+    "trainer": None,
+    "unilateral": None,
+    "notes": 36,
+    # secondary
+    "orm": None,
+}
+
+def prettify_name(obj: Any) -> Any:
+    """
+    "Press:Behind The Neck:Snatch Grip" -> "Snatch Grip Behind The Neck Press"
+
+    recursive function that prettifies a string, the "name" field of a series, or the "name" column
+    of a data frame.
+    """
+    if type(obj) is pd.DataFrame:
+        if "name" in obj.columns:
+            return obj.replace({name: prettify_name(name) for name in obj["name"].unique()})
+        else:
+            return obj
+    elif type(obj) is str:
+        ret = " ".join(obj.split(":")[-1::-1])
+        return ret
+    else:
+        raise TypeError(f"unknown type {type(obj)}")
 
 
 def get_header(name: str, newline: bool = False) -> str:
@@ -68,13 +104,16 @@ def get_headers(df: pd.DataFrame, newline: bool = False) -> list[str]:
 
 
 def print_df(df: pd.DataFrame) -> None:
-    headers = get_headers(df, newline=True)
+    """
+    """
     disp = tabulate.tabulate(
-        df.to_numpy().tolist(),
-        headers=headers,
+        prettify_name(df).to_numpy().tolist(),
+        headers=get_headers(df, newline=True),
         showindex=False,
         numalign="right",
         stralign="left",
         floatfmt=".1f",
+        tablefmt="fancy_grid",
+        maxcolwidths=[_WIDTHS[c] for c in df.columns],
     )
     print(disp)

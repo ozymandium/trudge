@@ -4,6 +4,8 @@ import pandas as pd
 def name_mask(df: pd.DataFrame, prefix: str) -> pd.Series:
     """
     get a mask for all indexes into `df` where the column `"name"` starts with `prefix`
+
+    ex.: Deadlift -> Deadlift:Conventional, Deadlift:Sumo
     """
     mask = pd.Series(index=df.index)
     for idx in df.index:
