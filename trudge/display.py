@@ -16,11 +16,30 @@ _DESCRIPTIONS = {
     "hold": "Hold",
     "negative": "Eccentric",
     "effort": "Effort",
+    "heart": "Heart Rate",
     "trainer": "Trainer",
     "unilateral": "Unilateral",
     "notes": "Notes",
     # secondary
     "orm": "1 Rep Max",
+}
+_SHORT_DESCRIPTIONS = {
+    # in the source data
+    "time": "Date",
+    "name": "Type",
+    "reps": "Reps",
+    "weight": "Weight",
+    "rest": "Rest",
+    "positive": "Conc",
+    "hold": "Hold",
+    "negative": "Ecc",
+    "effort": "Effort",
+    "heart": "Heart",
+    "trainer": "Coach",
+    "unilateral": "Unil",
+    "notes": "Notes",
+    # secondary
+    "orm": "1RM",
 }
 _UNITS = {
     # in the source data
@@ -33,6 +52,7 @@ _UNITS = {
     "hold": "sec",
     "negative": "sec",
     "effort": "1-5",
+    "heart": "bpm",
     "trainer": "Y/N",
     "unilateral": "Y/N",
     "notes": None,
@@ -42,7 +62,7 @@ _UNITS = {
 _WIDTHS = {
     # in the source data
     "time": None,
-    "name": 32,
+    "name": 24,
     "reps": None,
     "weight": None,
     "rest": None,
@@ -50,12 +70,14 @@ _WIDTHS = {
     "hold": None,
     "negative": None,
     "effort": None,
+    "heart": None,
     "trainer": None,
     "unilateral": None,
-    "notes": 36,
+    "notes": 30,
     # secondary
     "orm": None,
 }
+
 
 def prettify_name(obj: Any) -> Any:
     """
@@ -76,8 +98,8 @@ def prettify_name(obj: Any) -> Any:
         raise TypeError(f"unknown type {type(obj)}")
 
 
-def get_header(name: str, newline: bool = False) -> str:
-    desc = _DESCRIPTIONS[name]
+def get_header(name: str, newline: bool = False, short: bool = False) -> str:
+    desc = _SHORT_DESCRIPTIONS[name] if short else _DESCRIPTIONS[name]
     unit = _UNITS[name]
     if unit is None:
         return desc
@@ -85,7 +107,7 @@ def get_header(name: str, newline: bool = False) -> str:
     return f"{desc}{sep}[{unit}]"
 
 
-def get_headers(df: pd.DataFrame, newline: bool = False) -> list[str]:
+def get_headers(df: pd.DataFrame, newline: bool = False, short: bool = False) -> list[str]:
     """
     For an arbitrary pandas DataFrame with column names `columns` get the formatted headers for each
     column to print for human readable output.
@@ -100,15 +122,14 @@ def get_headers(df: pd.DataFrame, newline: bool = False) -> list[str]:
     list[str]
         Order corresponds to input order. List of formatted (including newlines) column headers
     """
-    return [get_header(col, newline=newline) for col in df.columns]
+    return [get_header(col, newline=newline, short=short) for col in df.columns]
 
 
-def print_df(df: pd.DataFrame) -> None:
-    """
-    """
+def print_df(df: pd.DataFrame, short: bool = False) -> None:
+    """ """
     disp = tabulate.tabulate(
         prettify_name(df).to_numpy().tolist(),
-        headers=get_headers(df, newline=True),
+        headers=get_headers(df, newline=True, short=short),
         showindex=False,
         numalign="right",
         stralign="left",

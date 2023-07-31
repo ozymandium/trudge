@@ -113,7 +113,7 @@ def plot_orm(record: pd.DataFrame, set_orms: pd.Series, desc: str) -> None:
         matching_clusters = [cluster for cluster in orig_session_clusters if orig_idx in cluster]
         assert len(matching_clusters) == 1
         session_idxs = matching_clusters[0]
-        trudge.display.print_df(orig.loc[session_idxs])
+        trudge.display.print_df(orig.loc[session_idxs], short=True)
 
     plt.tight_layout()
     plt.show()

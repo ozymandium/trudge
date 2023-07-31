@@ -14,6 +14,7 @@ COLUMNS = [
     "hold",
     "negative",
     "effort",
+    "heart",
     "trainer",
     "unilateral",
     "notes",
@@ -43,6 +44,7 @@ _CONVERTERS: dict[str, Callable] = {
     "hold": int,
     "negative": int,
     "effort": _convert_effort,
+    "heart": lambda s: int(s) if s else None,
     "trainer": lambda s: {"Y": True, "N": False}[_clean_whitespace(s)],
     "unilateral": lambda s: {"Y": True, "N": False}[_clean_whitespace(s)],
     "notes": _clean_whitespace,
@@ -50,6 +52,6 @@ _CONVERTERS: dict[str, Callable] = {
 
 
 def load(path: str) -> pd.DataFrame:
-    return pd.read_csv(
-        path, names=COLUMNS, header=0, converters=_CONVERTERS  # to override header row
-    )
+    record = pd.read_csv(path, converters=_CONVERTERS)
+    assert set(record.columns) == set(COLUMNS)
+    return record
