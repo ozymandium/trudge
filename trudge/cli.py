@@ -13,7 +13,13 @@ def orm_list_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
     set_orms = trudge.metrics.orm_series(record)
     res = trudge.metrics.orm_per_lift(record, set_orms)
     res = res.sort_values(args.sort, ascending=args.asc)
-    trudge.display.print_df(res)
+    if args.output is not None:
+        if args.output.endswith(".csv"):
+            trudge.display.df_to_csv(res, args.output)
+        else:
+            raise ValueError(f"unknown output format {args.output}")
+    else:
+        trudge.display.print_df(res)
 
 
 def orm_plot_handler(record: pd.DataFrame, args: argparse.Namespace) -> None:
@@ -64,6 +70,9 @@ def parse_args() -> argparse.Namespace:
     )
     orm_list_ssp.add_argument(
         "--asc", action="store_true", help="Show in ascending order along requested column"
+    )
+    orm_list_ssp.add_argument(
+        "-o", "--output", help="Output file to write to. Will infer format from extension."
     )
     orm_list_ssp.set_defaults(func=orm_list_handler)
     # FIXME: shared upper function for orm, with split lower functions for subcommands somehow???

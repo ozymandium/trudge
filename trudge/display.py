@@ -126,7 +126,16 @@ def get_headers(df: pd.DataFrame, newline: bool = False, short: bool = False) ->
 
 
 def print_df(df: pd.DataFrame, short: bool = False) -> None:
-    """ """
+    """
+    Print a pandas DataFrame with human readable headers and prettified names.
+
+    Parameters
+    ==========
+    df : pd.DataFrame
+        dataframe to print
+    short : bool
+        whether to use short headers (default False)
+    """
     disp = tabulate.tabulate(
         prettify_name(df).to_numpy().tolist(),
         headers=get_headers(df, newline=True, short=short),
@@ -138,3 +147,17 @@ def print_df(df: pd.DataFrame, short: bool = False) -> None:
         maxcolwidths=[_WIDTHS[c] for c in df.columns],
     )
     print(disp)
+
+
+def df_to_csv(df: pd.DataFrame, path: str) -> None:
+    """
+    Write a dataframe to a csv file with human readable headers and prettified names.
+
+    Parameters
+    ==========
+    df : pd.DataFrame
+        dataframe to write
+    path : str
+        path to write to
+    """
+    df.to_csv(path, header=get_headers(df, newline=False), index=False, float_format="%.1f")
