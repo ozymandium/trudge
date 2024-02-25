@@ -75,6 +75,7 @@ def parse_args() -> argparse.Namespace:
         "-o", "--output", help="Output file to write to. Will infer format from extension."
     )
     orm_list_ssp.set_defaults(func=orm_list_handler)
+    # FIXME: help for `trudge orm list -h` doesn't work
     # FIXME: shared upper function for orm, with split lower functions for subcommands somehow???
 
     # trudge orm plot <name> /path/to/log.csv
