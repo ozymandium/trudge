@@ -8,21 +8,24 @@ const EFFORT_MIN: u8 = 1;
 const EFFORT_MAX: u8 = 5;
 
 lazy_static! {
-    static ref SCHEMA: Arc<Schema> = Arc::new(Schema::from_iter(vec![
-        Field::new("time", DataType::Datetime(TimeUnit::Milliseconds, None)),
-        Field::new("name", DataType::String),
-        Field::new("reps", DataType::UInt32),
-        Field::new("weight", DataType::Float32),
-        Field::new("rest", DataType::Float32),
-        Field::new("positive", DataType::Float32),
-        Field::new("hold", DataType::Float32),
-        Field::new("negative", DataType::Float32),
-        Field::new("effort", DataType::UInt32),
-        Field::new("heart", DataType::UInt32),
-        Field::new("trainer", DataType::Boolean),
-        Field::new("unilateral", DataType::Boolean),
-        Field::new("notes", DataType::String),
-    ].into_iter()));
+    static ref SCHEMA: Arc<Schema> = Arc::new(Schema::from_iter(
+        vec![
+            Field::new("time", DataType::Datetime(TimeUnit::Milliseconds, None)),
+            Field::new("name", DataType::String),
+            Field::new("reps", DataType::UInt32),
+            Field::new("weight", DataType::Float32),
+            Field::new("rest", DataType::Float32),
+            Field::new("positive", DataType::Float32),
+            Field::new("hold", DataType::Float32),
+            Field::new("negative", DataType::Float32),
+            Field::new("effort", DataType::UInt32),
+            Field::new("heart", DataType::UInt32),
+            Field::new("trainer", DataType::Boolean),
+            Field::new("unilateral", DataType::Boolean),
+            Field::new("notes", DataType::String),
+        ]
+        .into_iter()
+    ));
 }
 
 /// Load the CSV file and validate it.
