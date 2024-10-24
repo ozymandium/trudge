@@ -43,7 +43,7 @@ def orm(reps: Any, weight: Any, formula: OrmFormula = DEFAULT_ORM_FORMULA) -> An
     if formula == OrmFormula.Lombardi:
         return weight * reps**0.1
     if formula == OrmFormula.Mayhew:
-        return (100.0 * weight) / (52.2 + (41.9 * math.e - 0.055 * reps))
+        # return (100.0 * weight) / (52.2 + (41.9 * math.e - 0.055 * reps))
     if formula == OrmFormula.OConner:
         return weight * (1 + 0.025 * reps)
     if formula == OrmFormula.Wathan:
